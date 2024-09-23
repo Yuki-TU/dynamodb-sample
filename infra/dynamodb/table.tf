@@ -4,7 +4,6 @@ resource "aws_dynamodb_table" "users_table" {
   read_capacity  = 20
   write_capacity = 20
   hash_key       = "UserId"
-  range_key      = "FirstName"
   attribute {
     name = "UserId"
     type = "N"
@@ -28,6 +27,14 @@ resource "aws_dynamodb_table" "users_table" {
   ttl {
     attribute_name = "TimeToExist"
     enabled        = true
+  }
+  global_secondary_index {
+    name            = "FirstNameIndex"
+    hash_key        = "FirstName"
+    range_key       = "UserId"
+    write_capacity  = 20
+    read_capacity   = 20
+    projection_type = "ALL"
   }
   global_secondary_index {
     name            = "LastNameIndex"
