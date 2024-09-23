@@ -1,4 +1,5 @@
 services:
+  # DynamoDBのモックサーバー
   dynamodb:
     image: amazon/dynamodb-local:latest
     ports:
@@ -6,7 +7,33 @@ services:
     volumes:
       - dynamodb:/home/dynamodblocal
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath . -optimizeDbBeforeStartup"
-  
+  app:
+    build:
+      args:
+        - target=dev
+    volumes:
+      - ./:/app
+    environment:
+      AWS_ENDPOINT: http://dynamodb:8000
+      AWS_ACCESS_KEY_ID: accesskey
+      AWS_SECRET_KEY: secretkey
+      AWS_REGION: ap-northeast-1
+    ports:
+      - 8888:80
+    command: air
+  # AWS SDKのモックサーバー
+  moto:
+    image: motoserver/moto:latest
+    network_mode: bridge
+    ports:
+      - 127.0.0.1:5000:5000/tcp
+    volumes:
+        - moto:/mnt/data  # ホストマシンの./moto_dataをコンテナ内の/mnt/dataにマウント
+    environment:
+      - MOTO_ENABLE_PERSISTENCE=true  # 永続化を有効にするオプション
+      - MOTO_DATA_PATH=/mnt/data  # データ保存先ディレクトリのパスを指定
 volumes:
-    dynamodb:
-        driver: local
+  dynamodb:
+    driver: local
+  moto:
+    driver: local
