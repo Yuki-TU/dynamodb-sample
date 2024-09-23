@@ -1,0 +1,54 @@
+post:
+  security:
+    - bearerAuth: []
+  tags:
+    - ユーザー
+  summary: ユーザー登録
+  description: |
+    - ユーザー登録
+  operationId: CreateUser
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            familyName:
+              type: string
+              example: 葛飾
+            familyNameKana:
+              type: string
+              example: カツシカ
+            firstName:
+              type: string
+              example: 北斎
+            firstNameKana:
+              type: string
+              example: ホクサイ
+          required:
+            - firstName
+            - firstNameKana
+            - familyName
+            - familyNameKana
+  responses:
+    '201':
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: integer
+                format: int64
+                example: 1
+            required:
+              - userId
+    '400':
+      $ref: '../openapi.yml#/components/responses/400Error'
+    '401':
+      $ref: '../openapi.yml#/components/responses/401UnauthorizedError'
+    '404':
+      $ref: '../openapi.yml#/components/responses/404Error'
+    '500':
+      $ref: '../openapi.yml#/components/responses/500Error'

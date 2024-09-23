@@ -1,0 +1,233 @@
+openapi: 3.0.0
+info:
+  version: 0.2.0
+  title: point-app-backend RESTful API
+  description: ハッカソン2022で作成するポイントアプリのバックエンドAPI
+servers:
+  - url: http://{host}:8081/api/v1
+    description: go service api server endpoint application
+    variables:
+      host:
+        default: localhost
+        enum:
+          - localhost
+paths:
+  /users/{userId}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - ユーザー
+      summary: ユーザー情報取得
+      description: |
+        - ユーザー情報を取得する
+      operationId: GetUserByID
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: ユーザID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  familyName:
+                    type: string
+                  userId:
+                    type: number
+                  familyNameKana:
+                    type: string
+                  firstName:
+                    type: string
+                  firstNameKana:
+                    type: string
+                example:
+                  userId: 200
+                  familyName: 山田
+                  familyNameKana: ヤマダ
+                  firstName: 太郎
+                  firstNameKana: タロウ
+                required:
+                  - userId
+                  - familyName
+                  - familyNameKana
+                  - firstName
+                  - firstNameKana
+        '404':
+          $ref: '#/components/responses/404Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - ユーザー
+      summary: ユーザー情報更新
+      description: |
+        - セッションキーのユーザ情報を更新する
+      operationId: UpdateUserByID
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: ユーザID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                familyName:
+                  type: string
+                  example: 葛飾
+                familyNameKana:
+                  type: string
+                  example: カツシカ
+                firstName:
+                  type: string
+                  example: 北斎
+                firstNameKana:
+                  type: string
+                  example: ホクサイ
+              required:
+                - firstName
+                - firstNameKana
+                - familyName
+                - familyNameKana
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                required:
+                  - status
+        '400':
+          $ref: '#/components/responses/400Error'
+        '401':
+          $ref: '#/components/responses/401UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/404Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /users:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - ユーザー
+      summary: ユーザー登録
+      description: |
+        - ユーザー登録
+      operationId: CreateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                familyName:
+                  type: string
+                  example: 葛飾
+                familyNameKana:
+                  type: string
+                  example: カツシカ
+                firstName:
+                  type: string
+                  example: 北斎
+                firstNameKana:
+                  type: string
+                  example: ホクサイ
+              required:
+                - firstName
+                - firstNameKana
+                - familyName
+                - familyNameKana
+      responses:
+        '201':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - userId
+        '400':
+          $ref: '#/components/responses/400Error'
+        '401':
+          $ref: '#/components/responses/401UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/404Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 認証トークン
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'name: cannot be blank.'
+      required:
+        - message
+  responses:
+    400Error:
+      description: |
+        パラメーターエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'name: cannot be blank.'
+    401UnauthorizedError:
+      description: |
+        認証失敗
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 認証が失敗しました。再ログインしてください。
+    404Error:
+      description: |
+        データ存在しない
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: データが存在しません。
+    500Error:
+      description: |
+        サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: サーバー側で何らかのエラーが発生しました。時間をおいて再度アクセスしてください。

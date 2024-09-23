@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  version: 0.2.0
+  title: point-app-backend RESTful API
+  description: ハッカソン2022で作成するポイントアプリのバックエンドAPI
+servers:
+  - url: http://{host}:8081/api/v1
+    description: go service api server endpoint application
+    variables:
+      host:
+        default: localhost
+        enum:
+          - localhost
+paths:
+  /users/{userId}:
+    $ref: './paths/users/[userId].yml'
+  /users:
+    $ref: './paths/users.yml'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 認証トークン
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'name: cannot be blank.'
+      required:
+        - message
+  responses:
+    400Error:
+      description: |
+        パラメーターエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'name: cannot be blank.'
+    401UnauthorizedError:
+      description: |
+        認証失敗
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 認証が失敗しました。再ログインしてください。
+    404Error:
+      description: |
+        データ存在しない
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: データが存在しません。
+    500Error:
+      description: |
+        サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: サーバー側で何らかのエラーが発生しました。時間をおいて再度アクセスしてください。
